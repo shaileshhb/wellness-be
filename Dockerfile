@@ -7,6 +7,6 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN go build -v -o /usr/src/app
+RUN go build -v -o /usr/src/app/wellness
 
-CMD ["app"]
+CMD ["/usr/src/app/wellness"]
