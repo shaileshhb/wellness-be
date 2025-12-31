@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,7 +26,7 @@ func main() {
 
 	ser.RegisterModuleRoutes()
 
-	logger.Error().Err(ser.App.Listen(":8080")).Msg("")
+	logger.Error().Err(ser.App.Listen(fmt.Sprintf(":%s", os.Getenv("PORT")))).Msg("")
 
 	// Stop Server On System Call or Interrupt.
 	ch := make(chan os.Signal, 1)

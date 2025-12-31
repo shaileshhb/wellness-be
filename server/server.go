@@ -32,7 +32,7 @@ func NewServer(log zerolog.Logger, database *db.Database) *Server {
 
 func (ser *Server) InitializeRouter() {
 	app := fiber.New(fiber.Config{
-		AppName: "Quiz App",
+		AppName: "Wellness App",
 	})
 
 	app.Use(cors.New(cors.Config{
