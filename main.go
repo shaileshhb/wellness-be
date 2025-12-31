@@ -14,9 +14,9 @@ import (
 
 func main() {
 	logger := log.InitializeLogger()
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
-		logger.Fatal().Err(err).Msg("Error loading.env file")
+		logger.Warn().Err(err).Msg(".env file not found, using environment variables")
 		return
 	}
 
