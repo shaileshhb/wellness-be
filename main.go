@@ -17,8 +17,11 @@ func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
 		logger.Warn().Err(err).Msg(".env file not found, using environment variables")
-		return
 	}
+
+	fmt.Println("Rapid API Key: ", os.Getenv("RAPID_API_KEY"))
+	fmt.Println("Rapid API Host: ", os.Getenv("RAPID_API_HOST"))
+	fmt.Println("Port: ", os.Getenv("PORT"))
 
 	database := db.NewDatabase()
 	ser := server.NewServer(logger, database)
