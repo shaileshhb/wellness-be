@@ -21,20 +21,27 @@ func NewListingService(db *db.Database) *ListingService {
 	return &ListingService{db: db}
 }
 
-func (ls *ListingService) GetExerciseListings(exerciseResponse *model.ExerciseResponse, limit string, offset string) error {
+// GetExerciseListings will get the exercise listings from the MuscleWiki API
+func (ls *ListingService) GetExerciseListings(exerciseResponse *model.ExerciseResponse, limit string, offset string, search string) error {
 	url := "https://musclewiki-api.p.rapidapi.com/exercises"
+	queryparams := ""
 
 	if limit == "" {
-		limit = "20"
+		queryparams += fmt.Sprintf("limit=%d&", 20)
+	} else {
+		queryparams += fmt.Sprintf("limit=%s&", limit)
 	}
+
 	if offset == "" {
-		offset = "0"
+		queryparams += fmt.Sprintf("offset=%d&", 0)
+	} else {
+		queryparams += fmt.Sprintf("offset=%s&", offset)
 	}
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s?limit=%s&offset=%s", url, limit, offset), nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s?%s", url, queryparams), nil)
 	if err != nil {
 		return err
 	}
@@ -57,6 +64,7 @@ func (ls *ListingService) GetExerciseListings(exerciseResponse *model.ExerciseRe
 	return nil
 }
 
+// GetExerciseById will get the exercise detail from the MuscleWiki API
 func (ls *ListingService) GetExerciseById(exerciseDetailID string, exerciseDetail *model.ExerciseDetail) error {
 	url := fmt.Sprintf("https://musclewiki-api.p.rapidapi.com/exercises/%s?detail=true", exerciseDetailID)
 
@@ -114,4 +122,44 @@ func (ls *ListingService) ProxyVideo(videoPath string, rangeHeader string) (*htt
 	}
 
 	return res, nil
+}
+
+func (ls *ListingService) GetExerciseSearch(exerciseSearch *[]model.ExerciseList, limit, search string) error {
+	url := "https://musclewiki-api.p.rapidapi.com/search"
+	queryparams := ""
+
+	if limit == "" {
+		queryparams += fmt.Sprintf("limit=%d&", 20)
+	} else {
+		queryparams += fmt.Sprintf("limit=%s&", limit)
+	}
+
+	if search != "" && len(search) >= 3 {
+		queryparams += fmt.Sprintf("q=%s", search)
+	}
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s?%s", url, queryparams), nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("x-rapidapi-key", os.Getenv("RAPID_API_KEY"))
+	req.Header.Add("x-rapidapi-host", os.Getenv("RAPID_API_HOST"))
+
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+
+	err = json.NewDecoder(res.Body).Decode(exerciseSearch)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

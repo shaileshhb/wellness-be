@@ -21,16 +21,19 @@ func NewListingController(listingService *service.ListingService, log zerolog.Lo
 // RegisterRoute registers all endpoints to router.
 func (controller *ListingController) RegisterRoute(router fiber.Router) {
 	router.Get("/exercises", controller.GetExerciseListings)
+	router.Get("/search", controller.GetExerciseSearch)
 	router.Get("/exercises/:id", controller.GetExerciseById)
 	router.Get("/videos/*", controller.ProxyVideo)
 	controller.log.Info().Msg("Quiz routes registered")
 }
 
+// GetExerciseListings will get the exercise listings from the MuscleWiki API
 func (lc *ListingController) GetExerciseListings(c *fiber.Ctx) error {
 	exerciseResponse := &model.ExerciseResponse{}
 	limit := c.Query("limit")
 	offset := c.Query("offset")
-	err := lc.listingService.GetExerciseListings(exerciseResponse, limit, offset)
+	search := c.Query("search")
+	err := lc.listingService.GetExerciseListings(exerciseResponse, limit, offset, search)
 	if err != nil {
 		lc.log.Error().Err(err).Msg("Failed to get exercise listings")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -40,6 +43,22 @@ func (lc *ListingController) GetExerciseListings(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(exerciseResponse)
 }
 
+// GetExerciseSearch will get the exercise search from the MuscleWiki API
+func (lc *ListingController) GetExerciseSearch(c *fiber.Ctx) error {
+	exerciseSearch := &[]model.ExerciseList{}
+	limit := c.Query("limit")
+	search := c.Query("search")
+	err := lc.listingService.GetExerciseSearch(exerciseSearch, limit, search)
+	if err != nil {
+		lc.log.Error().Err(err).Msg("Failed to get exercise search")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to get exercise search",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(exerciseSearch)
+}
+
+// GetExerciseById will get the exercise detail from the MuscleWiki API
 func (lc *ListingController) GetExerciseById(c *fiber.Ctx) error {
 	exerciseDetailID := c.Params("id")
 	exerciseDetail := &model.ExerciseDetail{}
@@ -53,6 +72,7 @@ func (lc *ListingController) GetExerciseById(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(exerciseDetail)
 }
 
+// ProxyVideo will proxy the video request to the MuscleWiki API
 func (lc *ListingController) ProxyVideo(c *fiber.Ctx) error {
 	// Get the video path (everything after /videos/)
 	videoPath := c.Params("*")

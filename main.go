@@ -19,10 +19,6 @@ func main() {
 		logger.Warn().Err(err).Msg(".env file not found, using environment variables")
 	}
 
-	fmt.Println("Rapid API Key: ", os.Getenv("RAPID_API_KEY"))
-	fmt.Println("Rapid API Host: ", os.Getenv("RAPID_API_HOST"))
-	fmt.Println("Port: ", os.Getenv("PORT"))
-
 	database := db.NewDatabase()
 	ser := server.NewServer(logger, database)
 	ser.InitializeRouter()

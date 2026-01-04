@@ -1,10 +1,12 @@
 package model
 
+// ExerciseList is the list of exercises returned by the MuscleWiki API
 type ExerciseList struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
+// ExerciseResponse is the response from the MuscleWiki API for a list of exercises
 type ExerciseResponse struct {
 	Total     int            `json:"total"`
 	Limit     int            `json:"limit"`
@@ -13,6 +15,7 @@ type ExerciseResponse struct {
 	Exercises []ExerciseList `json:"results"`
 }
 
+// ExerciseDetail is the detail of an exercise returned by the MuscleWiki API
 type ExerciseDetail struct {
 	ID             int             `json:"id"`
 	Name           string          `json:"name"`
@@ -28,6 +31,7 @@ type ExerciseDetail struct {
 	StepCount      int             `json:"step_count"`
 }
 
+// ExerciseVideo is the video of an exercise returned by the MuscleWiki API
 type ExerciseVideo struct {
 	Url     string `json:"url"`
 	Angle   string `json:"angle"`
